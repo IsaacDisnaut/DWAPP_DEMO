@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <title></title>
+     <style>
+    body {
+    background-color: black; /* เปลี่ยนพื้นหลังเป็นดำ */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 50;
+  }
+
+  .eye {
+    width: 30vw;      /* ลูกตาใหญ่เต็มจอแบบสัดส่วน */
+    height: 30vw;
+    width: 600px;
+    height: 600px;
+    background: white; /* สีตาขาว */
+    border: 3px solid #ccc; /* ขอบสีเทาอ่อน เพื่อให้เห็นบนพื้นดำ */
+    border-radius: 150%;
+    position: relative;
+    display: inline-block;
+    margin: 270px;
+  }
+
+  .pupil {
+    width: 8vw;
+    height: 8vw;
+    width: 200px;
+    height: 200px;
+    background: black; /* ลูกตาดำ */
+    border-radius: 100%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(0%, -50%);
+  }
+    
+  </style>
+</head>
+
+<body>
+
+      
+    <nav class="navbar navbar-light bg-dark">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1" style="color: aliceblue;">WebRTC PeerJs Demo</span>
+        </div>
+    </nav>
+    <div class="container-fluid">
+
+
+        <div class="row">
+            <div class="col-5 pt-5 ps-5 col-sm-7">
+                <!--<label class="form-label">Enter Room ID to connect or create</label>-->
+                <input id="room-input" type="text" class="form-control" placeholder="2" hidden>
+                <br>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-secondary mb-3" onclick="createRoom()">Create Room</button>
+                    <button type="submit" class="btn btn-primary mb-3" onclick="joinRoom()">Join Room</button>
+                    
+                    <!--<button type="submit" class="btn btn-success mb-3" onclick="joinRoomWithoutCamShareScreen()">Join
+                        Room and Share screen directly</button>
+                    <button type="submit" class="btn btn-dark mb-3" onclick="joinRoomShareVideoAsStream()">Join
+                        Room and stream local media </button>
+                    <button type="submit" class="btn btn-secondary mb-3" onclick="camstate(true)">OpenCam</button>
+                    <button type="submit" class="btn btn-secondary mb-3" onclick="camstate(false)">CloseCam</button>-->
+                </div>
+
+            </div>
+            <div class="col-7 pt-5 ps-5 pe-5 col-sm-5">
+                <div class="alert alert-info alert-dismissible fade show mt-3" role="alert" id="notification" hidden>
+                    <strong>Holy guacamole!</strong> You should check in on some of those fields below.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col ps-5 pt-5" id="local-vid-container" hidden>
+                <div class="row">
+                    <div class="col">
+
+                    </div>
+
+                </div>
+                <div class="row p-3">
+                    <video height="300" id="local-video" controls class="local-video" ></video>
+                </div>
+                <div class="row">
+                    <!--<div class="col-3 col-sm-12"><button type="submit" class="btn btn-success mb-3"
+                            onclick="startScreenShare()">Share Screen</button>-->
+                    </div>
+                </div>
+            </div>
+            <div class="col ps-5 pt-5" id="screenshare-container" hidden>
+                <div class="row">
+                    <div class="col">
+                        <h2>Screen Shared Stream</h2>
+                    </div>
+
+                </div>
+                <div class="row p-3">
+                    <video height="300" id="screenshared-video" controls class="local-video"></video>
+                </div>
+                <!-- <div class="row">
+                    <div class="col-3 col-sm-12"><button type="submit" class="btn btn-success mb-3"
+                            onclick="startScreenShare()">Share Screen</button>
+                    </div>
+                </div> -->
+            </div>
+            <div class="col ps-5 pt-5" id="remote-vid-container" hidden>
+                <div class="row">
+                    <div class="col">
+                        <h2>Remote Stream</h2>
+                    </div>
+
+                </div>
+                <div class="row p-3">
+                    <video height="300" id="remote-video" controls class="remote-video" ></video>
+                </div>
+            </div>
+
+            <div class="col ps-5 pt-5" id="local-mdeia-container" hidden>
+                <div class="row">
+
+
+                </div>
+                
+            </div>
+        </div>
+
+    </div>
+    <!-- Optional JavaScript; choose one of the two! -->
+    <div class="eye">
+            <div class="pupil"></div>
+            </div>
+
+            <div class="eye">
+            <div class="pupil"></div>
+            </div>
+            <br>
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+
+
+    <!-- check https://peerjs.com/ for latest CDN-->
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <script src="script.js"></script>
+<script>
+  // เลือก element
+  const eyeEls = document.querySelectorAll('.eye');
+  const pupils = Array.from(document.querySelectorAll('.pupil'));
+
+  // ตั้งตำแหน่งเริ่มต้น (ตรงกลาง) และค่าขอบเขต
+  function initPositions() {
+    pupils.forEach((pupil, i) => {
+      const eye = eyeEls[i];
+      // คำนวณขอบเขตใน px (minX = 0, maxX = eye.width - pupil.width)
+      const eyeW = eye.clientWidth;
+      const pupW = pupil.clientWidth;
+      // เก็บค่าไว้ใน dataset เพื่อใช้งานต่อ
+      eye.dataset.maxX = (eyeW - pupW);
+      eye.dataset.minX = 0;
+      // center position
+      const centerX = Math.round((eyeW - pupW) / 1.2);
+      pupil.style.left = centerX + 'px';
+    });
+  }
+
+  // ขยับทั้งสองลูกตาไปตำแหน่ง (ตำแหน่งเป็น px)
+  function moveBothTo(xPx) {
+    pupils.forEach((pupil, i) => {
+      const eye = eyeEls[i];
+      // clamp ภายในขอบ
+      const minX = 50;
+      const maxX = parseInt(eye.dataset.maxX, 10) || (eye.clientWidth - pupil.clientWidth);
+      const clamped = Math.max(minX, Math.min(maxX, xPx));
+      pupil.style.left = clamped + 'px';
+    });
+  }
+
+  // ฟังก์ชันช่วย: move left, center, or right
+  function moveLeft() {
+    // ไปซ้ายสุด (มีระยะเติมเล็กน้อยเข้าในตา เพื่อไม่ติดขอบแน่นเกินไป)
+    const padding = -2;
+    const target = padding;
+    moveBothTo(target);
+  }
+  function moveRight() {
+    const padding = 0;
+    // ใช้ eye[0] เพื่อหา max (สมมติทั้งสองตาเท่ากัน)
+    const maxX = parseInt(eyeEls[0].dataset.maxX, 10) || (eyeEls[0].clientWidth - pupils[0].clientWidth);
+    const target = maxX - padding;
+    moveBothTo(target);
+  }
+  function moveCenter() {
+    const centerX = Math.round((eyeEls[0].clientWidth - pupils[0].clientWidth) / 2);
+    moveBothTo(centerX);
+  }
+
+  // ตั้งค่าเริ่มต้นเมื่อโหลด DOM
+  window.addEventListener('DOMContentLoaded', () => {
+    initPositions();
+    // รีเซ็ตตำแหน่งเมื่อหน้าต่างเปลี่ยนขนาด
+    window.addEventListener('resize', initPositions);
+  });
+
+  // รับคีย์บอร์ด (keydown) — ป้องกันการเลื่อนหน้าเมื่อใช้ลูกศร
+  window.addEventListener('keydown', (ev) => {
+    const key = ev.key.toLowerCase();
+    if (['arrowleft','arrowright','a','d',' '].includes(key) || key === 'arrowleft' || key === 'arrowright') {
+      // ป้องกัน scroll เมื่อกดลูกศร
+      if (ev.key === 'ArrowLeft' || ev.key === 'ArrowRight') ev.preventDefault();
+    }
+
+    if (key === 'arrowleft' || key === 'a') {
+      moveLeft();
+    } else if (key === 'arrowright' || key === 'd') {
+      moveRight();
+    } else if (key === ' ' || key === 'spacebar') {
+      // space กลับไปตรงกลาง
+      ev.preventDefault();
+      moveCenter();
+    }
+  });
+
+  // ถ้าต้องการ สามารถใช้ keyup เพื่อให้กลับกลางเมื่อปล่อย (comment/uncomment)
+  // window.addEventListener('keyup', (ev) => { if (['arrowleft','arrowright','a','d'].includes(ev.key.toLowerCase())) moveCenter(); });
+
+</script>
+    <script>
+    
+        let hashValue = window.location.hash.substring(1); 
+        createRoom();
+        if (hashValue) {
+           //document.getElementById("result").innerText = "คุณส่งค่า hash มา: " + hashValue;
+
+ 
+        if (hashValue === "2") {
+            createRoom();
+            
+        } else if (hashValue === "menu") {
+            //console.log("แสดงเมนูหลัก");
+        }
+        } else {
+            //document.getElementById("result").innerText = "ไม่มีค่า hash";
+        }
+  </script>
+</body>
+
+</html>
