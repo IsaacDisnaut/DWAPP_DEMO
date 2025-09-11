@@ -1,5 +1,5 @@
 const hash = location.hash;
-const id = hash.split('#')[1];
+const id = hash.split('#')[6];
 var room_id;
 var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 var local_stream;
@@ -8,7 +8,7 @@ var peer = null;
 var currentPeer = null
 var screenSharing = false
 var x = false
-let room =2;
+let room =248932;
 function camstate(x){
 opencam = x;
 }
@@ -223,4 +223,5 @@ function stopScreenSharing() {
         track.stop();
     });
     screenSharing = false
+
 }
