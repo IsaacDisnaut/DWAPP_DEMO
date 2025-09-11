@@ -8,7 +8,7 @@ var peer = null;
 var currentPeer = null
 var screenSharing = false
 var x = false
-let room =248932;
+let room ="248932";
 function camstate(x){
 opencam = x;
 }
@@ -225,3 +225,4 @@ function stopScreenSharing() {
     screenSharing = false
 
 }
+
