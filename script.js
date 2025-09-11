@@ -79,7 +79,7 @@ function joinRoom() {
     console.log("Joining Room")
     let room = document.getElementById("room-input").value;
     if (room == " " || room == "") {
-        document.getElementById("room-input").value=2;
+        document.getElementById("room-input").value="248932";
         joinRoom();
         return;
     }
@@ -225,4 +225,5 @@ function stopScreenSharing() {
     screenSharing = false
 
 }
+
 
