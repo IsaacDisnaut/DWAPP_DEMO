@@ -9,192 +9,168 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
 
-    <title>WebRTC PeerJs Demo</title>
-     <style>
-   
-    body {
-       background-color: rgba(113, 112, 112, 0.804);
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin-top: 50px;
-    }
-    /* joy*/
-    .direction-pad {
-      display: grid;
-      grid-template-columns: 60px 60px 60px;
-      grid-template-rows: 60px 60px 60px;
-      gap: 10px;
-      justify-content: center;
-    }
-    .direction-pad button {
-      width: 60px;
-      height: 60px;
-      font-size: 15px;
-      font-weight: bold;
-      border: none;
-      border-radius: 10px;
-      background: #4CAF50;
-      color: white;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .direction-pad button:hover {
-      background: #45a049;
-    }
-    /* ตำแหน่งปุ่ม */
-    .up    { grid-column: 2; grid-row: 1; }
-    .left  { grid-column: 1; grid-row: 2; }
-    .right { grid-column: 3; grid-row: 2; }
-    .down  { grid-column: 2; grid-row: 3; }
-    .mid  { grid-column: 2; grid-row: 2; }
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background-color: rgb(0, 0, 0);
 
-     .polaroid {
-    display: inline-block;
-    background: #582e51;
-    padding: 14px;                 /* ระยะห่างด้านในกรอบ */
-    border-radius: 8px;
-    border: 1px solid rgba(0,0,0,0.08);
-    box-shadow:
-      0 6px 18px rgba(0,0,0,0.25),
-      inset 0 2px 0 rgba(255,255,255,0.6);
-  }
+            display: flex;
+            justify-content: center;
+            /* จัดตรงกลางแนวนอน */
+            align-items: center;
+            /* จัดตรงกลางแนวตั้ง */
+        }
 
-  .polaroid .remote-video {
-    display:block;
-    height:300px;
-    width:auto;
-    border-radius:4px;
-  }
-  </style>
+        .container {
+            display: flex;
+            gap: 50px;
+        }
+
+        .outer-circle {
+            width: 100%;
+            height: 360px;
+            background-color: rgb(255, 255, 255);
+            border-radius: 50%;
+            position: relative;
+            /* transform: translate(0%,20%) */
+        }
+
+        .inner-circle {
+            width: 150px;
+            height: 150px;
+            background-color: black;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%)
+        
+        }
+
+        .closed {
+            background-color: black !important;
+            /* เปลี่ยนเป็นดำ */
+        }
+
+        .closed .inner-circle {
+            display: none;
+            /* ซ่อนตาดำ */
+        }
+
+        #local-video {
+            width: 0;
+            height: 0;
+            visibility: hidden;
+        }
+
+        #remote-video {
+            width: 1px;
+            height: 1px;
+            transform: translate(350%, -150%);
+        }
+    </style>
 </head>
 
 <body>
-    <!-- As a heading -->
-    
-    <nav class="navbar navbar-light bg-dark">
-        <div class="container-fluid">
-            <span class="navbar-brand mb-0 h1" style="color: aliceblue;">WebRTC PeerJs Demo</span>
-        </div>
-    </nav>
-    <div class="container-fluid">
+
+    <div class="container-fluid" style="margin-top: 100px;">
         <div class="row">
-            <div class="col-5 pt-5 ps-5 col-sm-7">
-                <!--<label class="form-label">Enter Room ID to connect or create</label>-->
-                <input id="room-input" type="text" class="form-control" placeholder="2" hidden>
-                <br>
-                <div class="col-auto">
-                    <button type="submit" class="btn btn-secondary mb-3" onclick="createRoom()">Create Room</button>
-                    <button type="submit" class="btn btn-primary mb-3" onclick="joinRoom()">Join Room</button>
-                    
-                    <!--<button type="submit" class="btn btn-success mb-3" onclick="joinRoomWithoutCamShareScreen()">Join
-                        Room and Share screen directly</button>
-                    <button type="submit" class="btn btn-dark mb-3" onclick="joinRoomShareVideoAsStream()">Join
-                        Room and stream local media </button>
-                    <button type="submit" class="btn btn-secondary mb-3" onclick="camstate(true)">OpenCam</button>
-                    <button type="submit" class="btn btn-secondary mb-3" onclick="camstate(false)">CloseCam</button>-->
+            <div class="col-2">
+
+            </div>
+            <div class="col">
+                <div class="outer-circle">
+                    <div class="inner-circle"></div>
                 </div>
 
             </div>
-            <div class="col-7 pt-5 ps-5 pe-5 col-sm-5">
-                <div class="alert alert-info alert-dismissible fade show mt-3" role="alert" id="notification" hidden>
-                    <strong>Holy guacamole!</strong> You should check in on some of those fields below.
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <div class="col-3">
+
+            </div>
+            <div class="col">
+
+                <div class="outer-circle">
+                    <div class="inner-circle"></div>
                 </div>
+            </div>
+            <div class="col-2">
+
             </div>
         </div>
         <div class="row">
-            <div class="col ps-5 pt-5" id="local-vid-container" hidden>
-                <div class="row">
-                    <div class="col">
-                         <!--<h2>Local Stream</h2>-->
-                    </div>
+            <div class="col ps-5 pt-5" id="remote-vid-container">
 
-                </div>
                 <div class="row p-3">
-                    <video height="300" id="local-video" controls class="local-video" hidden></video>
+                    <video height="300" id="remote-video" controls class="remote-video" style="opacity: 0;" autoplay></video>
                 </div>
-                <br>
-                <div class="row">
-                    <!--<div class="col-3 col-sm-12"><button type="submit" class="btn btn-success mb-3"
+            </div>
+            <div class="container-fluid">
+
+                <div class="row" hidden>
+                    <div class="col-5 pt-5 ps-5 col-sm-7">
+                        <!--<label class="form-label">Enter Room ID to connect or create</label>-->
+                        <input id="room-input" type="text" class="form-control" placeholder="2" hidden>
+                        <br>
+                        <div class="col-auto">
+
+                        </div>
+                        <div class="col-7 pt-5 ps-5 pe-5 col-sm-5" hidden>
+                            <div class="alert alert-info alert-dismissible fade show mt-3" role="alert"
+                                id="notification" hidden>
+                                <strong>Holy guacamole!</strong> You should check in on some of those fields below.
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                    aria-label="Close"></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" hidden>
+                        <div class="col ps-5 pt-5" id="local-vid-container">
+                            <div class="row">
+                                <div class="col">
+                                </div>
+                            </div>
+                            <div class="row p-3">
+                                <video height="300" id="local-video" controls class="local-video" hidden></video>
+                            </div>
+                            <div class="row">
+                                <!--<div class="col-3 col-sm-12"><button type="submit" class="btn btn-success mb-3"
                             onclick="startScreenShare()">Share Screen</button>-->
-                    </div>
-                </div>
-            </div>
-            <div class="col ps-5 pt-5" id="screenshare-container" hidden>
-                <div class="row">
-                    <div class="col">
-                        <h2>Screen Shared Stream</h2>
-                    </div>
+                            </div>
 
-                </div>
-                <div class="row p-3">
-                    <video height="300" id="screenshared-video" controls class="local-video" hidden></video>
-                </div>
-                <!-- <div class="row">
+                        </div>
+                        <div class="col ps-5 pt-5" id="screenshare-container" hidden>
+                            <div class="row">
+                            </div>
+                            <div class="row p-3">
+                                <video height="300" id="screenshared-video" controls class="local-video"></video>
+                            </div>
+                            <!-- <div class="row">
                     <div class="col-3 col-sm-12"><button type="submit" class="btn btn-success mb-3"
                             onclick="startScreenShare()">Share Screen</button>
                     </div>
                 </div> -->
+                        </div>
+
+                        <!--  <video height="300" id="remote-video" controls class="remote-video" autoplay></video>-->
+                    </div>
+                </div>
             </div>
-            <div class="col ps-5 pt-5" id="remote-vid-container" hidden>
-                <div class="row">
-                    
-                </div>
-                <div class="polaroid">
-                    <h2><ul><font color="white">ลูกค้า</font></ul></h2>
-                    <video height="300" id="remote-video" controls class="remote-video" ></video>
-                </div>
-                <br>
-                <br>
-            </div>
-        </div>
-    </div>
-                <div class="direction-pad">
-                    <button class="up polaroid">ขึ้น</button>
-                    <button class="left polaroid">ซ้าย</button>
-                    <button class="right polaroid">ขวา</button>
-                    <button class="down polaroid">ลง</button>
-                    <button class="mid polaroid">กลาง</button>
-                </div>
-    <!-- Optional JavaScript; choose one of the two! -->
 
-    <!-- Option 1: Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-        crossorigin="anonymous"></script>
+            <script src="script.js"></script>
 
-
-    <!-- check https://peerjs.com/ for latest CDN-->
-    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
-    <script src="script.js"></script>
-
-    <h2>Hash Value Checker</h2>
-    <p id="result">Init</p>
-    <script>
-    
-        let hashValue = window.location.hash.substring(1); 
-        
-        if (hashValue) {
-            document.getElementById("result").innerText = "คุณส่งค่า hash มา: " + hashValue;
-        
-      // ตัวอย่างเอาไปใช้
-        if (hashValue === "248932") {
-            joinRoom();
-            //window.location.href = "eye.html";
-            
-        } else if (hashValue === "menu") {
-            console.log("แสดงเมนูหลัก");
-        }
-        } else {
-            document.getElementById("result").innerText = "ไม่มีค่า hash";
-            createRoom();
-        }
-  </script>
+            <script>
+                joinRoom();
+               
+            </script>
 </body>
 
 
 </html>
+
+
 
 
 
