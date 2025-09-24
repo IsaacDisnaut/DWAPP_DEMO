@@ -226,4 +226,38 @@ function stopScreenSharing() {
 
 }
 
+const innerCircles = document.querySelectorAll(".inner-circle");
+const outerCircles = document.querySelectorAll(".outer-circle");
+
+let posX = 50;
+let posY = 50;
+let closed = false;
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "a") posX = 20;
+  if (event.key === "d") posX = 80;
+  if (event.key === "w") posY = 20;
+  if (event.key === "s") posY = 80;
+  if (event.key === " ") { // Spacebar รีเซ็ต
+    posX = 50;
+    posY = 50;
+  }
+
+  // ปิด/เปิดตาเมื่อกด X
+  if (event.key.toLowerCase() === "x") {
+    closed = !closed;
+    outerCircles.forEach(circle => {
+      if (closed) {
+        circle.classList.add("closed");
+      } else {
+        circle.classList.remove("closed");
+      }
+    });
+  }
+
+  innerCircles.forEach(circle => {
+    circle.style.left = posX + "%";
+    circle.style.top = posY + "%";
+  });
+});
 
